@@ -1,18 +1,29 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 	"path/filepath"
 )
 
-const serverPort = ":4000"
+// #TODO move the config out if it grows too big
+type config struct {
+	addr string
+}
 
 func main() {
+	// setting default address if no argument is provided
+	// addr := flag.String("addr", ":4000", "HTTP network address")
+	var cfg config
+
+	flag.StringVar(&cfg.addr, "addr", ":4000", "HTTP network address")
+	flag.Parse()
+
 	mux := http.NewServeMux()
 
 	// Fileserver used to serve static files
-	fileServer := http.FileServer(customFileSystem{http.Dir("./assets/static/")})
+	fileServer := http.FileServer(customFS{http.Dir("./assets/static/")})
 
 	mux.Handle("/static", http.NotFoundHandler())
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
@@ -21,17 +32,17 @@ func main() {
 	mux.HandleFunc("/snippet/view", snippetView)
 	mux.HandleFunc("/snippet/create", snippetCreate)
 
-	log.Printf("Starting server on %s", serverPort)
-	err := http.ListenAndServe(serverPort, mux)
+	log.Printf("Starting server on %s", cfg.addr)
+	err := http.ListenAndServe(cfg.addr, mux)
 	log.Fatal(err)
 }
 
-type customFileSystem struct {
+type customFS struct {
 	fs http.FileSystem
 }
 
 // I define a filesystem with the intention to hide the static file tree navigation.
-func (nfs customFileSystem) Open(path string) (http.File, error) {
+func (nfs customFS) Open(path string) (http.File, error) {
 	f, err := nfs.fs.Open(path)
 	if err != nil {
 		return nil, err

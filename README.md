@@ -13,4 +13,4 @@ This project is made with Go version 1.22.
 
 To run the source code locally, clone the repo, navigate to the folder and run `go install`. 
 
-You can either run main.go directly from its subdirectory `go run ./src/web` or use the fine executable script `./run.sh`.
+You can either run main.go directly from its subdirectory `go run ./src/web -addr=":4000"`, or use the fine executable script at `./run.sh`.
