@@ -1,0 +1,23 @@
+{{define "base"}}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <!-- the dot denotes any dynamic data passed -->
+    <title>{{ template "title" .}} - Snippetbox</title>
+</head>
+
+<body>
+    <header>
+        <h1><a href='/'>Snippetbox</a></h1>
+    </header>
+    <main>
+        <!-- the dot denotes any dynamic data passed -->
+        {{template "main" .}}
+    </main>
+    <footer>Powered by <a href="https://golang.org/">Go</a></footer>
+</body>
+
+</html>
+{{end}}

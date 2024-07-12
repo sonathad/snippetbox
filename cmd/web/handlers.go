@@ -2,15 +2,40 @@ package main
 
 import (
 	"fmt"
+	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 )
+
+const indexPage = "./assets/html/pages/index.html"
+const baseTempl = "./assets/html/base.html"
 
 // Define a home handler function, which writes a byte slice
 // containing "Hello from Snippetbox" as the response body
 func home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
+		return
+	}
+
+	files := []string{
+		baseTempl,
+		indexPage,
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// writes the content of the "base" template as the response
+	err = ts.ExecuteTemplate(w, "base", nil)
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 

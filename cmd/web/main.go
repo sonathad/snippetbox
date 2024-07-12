@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-const PORT = ":4000"
+const serverPort = ":4000"
 
 func main() {
 	mux := http.NewServeMux()
@@ -13,7 +13,7 @@ func main() {
 	mux.HandleFunc("/snippet/view", snippetView)
 	mux.HandleFunc("/snippet/create", snippetCreate)
 
-	log.Printf("Starting server on %s", PORT)
-	err := http.ListenAndServe(PORT, mux)
+	log.Printf("Starting server on %s", serverPort)
+	err := http.ListenAndServe(serverPort, mux)
 	log.Fatal(err)
 }
