@@ -8,9 +8,6 @@ import (
 	"strconv"
 )
 
-const indexPage = "./assets/html/pages/index.html"
-const baseTempl = "./assets/html/base.html"
-
 // Define a home handler function, which writes a byte slice
 // containing "Hello from Snippetbox" as the response body
 func home(w http.ResponseWriter, r *http.Request) {
@@ -19,12 +16,13 @@ func home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		baseTempl,
-		indexPage,
+	templateFiles := []string{
+		"./assets/html/pages/index.html",
+		"./assets/html/base.html",
+		"./assets/html/partials/nav.html",
 	}
 
-	ts, err := template.ParseFiles(files...)
+	ts, err := template.ParseFiles(templateFiles...)
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -36,10 +34,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
 	}
-
-	w.Write([]byte("Hello from Snippetbox"))
 }
 
 func snippetView(w http.ResponseWriter, r *http.Request) {
