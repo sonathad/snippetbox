@@ -2,12 +2,9 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 )
-
-const PORT = ":4000"
 
 // Define a home handler function, which writes a byte slice
 // containing "Hello from Snippetbox" as the response body
@@ -42,19 +39,4 @@ func snippetCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte("Create a new snippet"))
-}
-
-func main() {
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/snippet/view", snippetView)
-	mux.HandleFunc("/snippet/create", snippetCreate)
-
-	// Start a new web server, passing the servemux I made.
-	log.Printf("Starting server on %s", PORT)
-	err := http.ListenAndServe(PORT, mux)
-
-	// log.Fatal runs os.Exit(1) after logging the error (if any)
-	log.Fatal(err)
 }
