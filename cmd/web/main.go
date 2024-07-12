@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 )
 
@@ -14,11 +15,15 @@ type config struct {
 
 func main() {
 	// setting default address if no argument is provided
-	// addr := flag.String("addr", ":4000", "HTTP network address")
+	// #OLD: addr := flag.String("addr", ":4000", "HTTP network address")
 	var cfg config
 
 	flag.StringVar(&cfg.addr, "addr", ":4000", "HTTP network address")
 	flag.Parse()
+
+	// Decouple logging early
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	mux := http.NewServeMux()
 
@@ -32,9 +37,18 @@ func main() {
 	mux.HandleFunc("/snippet/view", snippetView)
 	mux.HandleFunc("/snippet/create", snippetCreate)
 
-	log.Printf("Starting server on %s", cfg.addr)
-	err := http.ListenAndServe(cfg.addr, mux)
-	log.Fatal(err)
+	// Declaring a new http.Server struct, to leverage errorLog
+	// for logging server problems
+	// #OLD: err := http.ListenAndServe(cfg.addr, mux)
+	srv := &http.Server{
+		Addr:     cfg.addr,
+		ErrorLog: errorLog,
+		Handler:  mux,
+	}
+
+	infoLog.Printf("Starting server on %s", cfg.addr)
+	err := srv.ListenAndServe()
+	errorLog.Fatal(err)
 }
 
 type customFS struct {
