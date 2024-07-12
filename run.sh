@@ -1,1 +1,1 @@
-go run ./src/web
+go run ./cmd/web
