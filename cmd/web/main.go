@@ -13,6 +13,11 @@ type config struct {
 	addr string
 }
 
+type application struct {
+	errorLog *log.Logger
+	infoLog  *log.Logger
+}
+
 func main() {
 	// setting default address if no argument is provided
 	// #OLD: addr := flag.String("addr", ":4000", "HTTP network address")
@@ -21,9 +26,11 @@ func main() {
 	flag.StringVar(&cfg.addr, "addr", ":4000", "HTTP network address")
 	flag.Parse()
 
-	// Decouple logging early
-	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	// Scalable way to add dependencies to the handlers
+	app := &application{
+		errorLog: log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile),
+		infoLog:  log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime),
+	}
 
 	mux := http.NewServeMux()
 
@@ -33,22 +40,22 @@ func main() {
 	mux.Handle("/static", http.NotFoundHandler())
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/snippet/view", snippetView)
-	mux.HandleFunc("/snippet/create", snippetCreate)
+	mux.HandleFunc("/", app.home)
+	mux.HandleFunc("/snippet/view", app.snippetView)
+	mux.HandleFunc("/snippet/create", app.snippetCreate)
 
 	// Declaring a new http.Server struct, to leverage errorLog
 	// for logging server problems
 	// #OLD: err := http.ListenAndServe(cfg.addr, mux)
 	srv := &http.Server{
 		Addr:     cfg.addr,
-		ErrorLog: errorLog,
+		ErrorLog: app.errorLog,
 		Handler:  mux,
 	}
 
-	infoLog.Printf("Starting server on %s", cfg.addr)
+	app.infoLog.Printf("Starting server on %s", cfg.addr)
 	err := srv.ListenAndServe()
-	errorLog.Fatal(err)
+	app.errorLog.Fatal(err)
 }
 
 type customFS struct {
