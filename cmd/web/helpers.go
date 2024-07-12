@@ -25,11 +25,11 @@ func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
 
+// I define a filesystem with the intention to hide the static file tree navigation.
 type customFS struct {
 	fs http.FileSystem
 }
 
-// I define a filesystem with the intention to hide the static file tree navigation.
 func (nfs customFS) Open(path string) (http.File, error) {
 	f, err := nfs.fs.Open(path)
 	if err != nil {

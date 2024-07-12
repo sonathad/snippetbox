@@ -7,8 +7,6 @@ import (
 	"strconv"
 )
 
-// Define a home handler function, which writes a byte slice
-// containing "Hello from Snippetbox" as the response body
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		app.notFound(w)
@@ -16,7 +14,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	}
 
 	templatePaths := []string{
-		"./assets/html/pages/index.html",
+		"./assets/html/pages/home.html",
 		"./assets/html/base.html",
 		"./assets/html/partials/nav.html",
 	}
