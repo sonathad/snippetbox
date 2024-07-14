@@ -1,10 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"log"
 	"net/http"
 	"os"
+
+	// can I remove this?
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type config struct {
@@ -21,6 +25,8 @@ func main() {
 	// #OLD: addr := flag.String("addr", ":4000", "HTTP network address")
 	var cfg config
 	flag.StringVar(&cfg.addr, "addr", ":4000", "HTTP network address")
+
+	dsn := flag.String("dsn", "web:kekw123@/snippetbox?parseTime=true", "MySQL data source name")
 	flag.Parse()
 
 	// Scalable way to add dependencies
@@ -38,7 +44,27 @@ func main() {
 		Handler:  app.routes(),
 	}
 
+	db, err := openDB(*dsn)
+	if err != nil {
+		app.errorLog.Fatal(err)
+	}
+
+	defer db.Close()
+
 	app.infoLog.Printf("Starting server on %s", cfg.addr)
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	app.errorLog.Fatal(err)
+}
+
+func openDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = db.Ping(); err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }
